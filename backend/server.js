@@ -1,32 +1,42 @@
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
+const mongoose = require('mongoose');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const pool = new Pool({
-    user: 'beres_bakti',
-    host: 'ep-royal-glitter-a1npomkv.ap-southeast-1.aws.neon.tech',
-    database: 'Tutam9',
-    password: 'UoC2sMmnHXa0',
-    port: 5432,
-    ssl: {
-        rejectUnauthorized: false 
-    }
+// MongoDB connection
+const mongoURI = 'mongodb+srv://beressiagian:Samber321@sbdpraktikum.flyb2zc.mongodb.net/?retryWrites=true&w=majority&appName=SBDPraktikum';
+mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 });
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => {
+    console.log('Connected to MongoDB');
+});
+
+// Define a schema for your music collection
+const musicSchema = new mongoose.Schema({
+    title: String,
+    artist: String,
+    album: String,
+    year: Number,
+});
+
+// Create a model based on the schema
+const Music = mongoose.model('Music', musicSchema);
 
 // CRUD Routes
 app.post('/api/music', async (req, res) => {
     const { title, artist, album, year } = req.body;
     try {
-        const result = await pool.query(
-            'INSERT INTO music (title, artist, album, year) VALUES ($1, $2, $3, $4) RETURNING *',
-            [title, artist, album, year]
-        );
-        res.json(result.rows[0]);
+        const newMusic = new Music({ title, artist, album, year });
+        const savedMusic = await newMusic.save();
+        res.json(savedMusic);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -35,8 +45,8 @@ app.post('/api/music', async (req, res) => {
 
 app.get('/api/music', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM music');
-        res.json(result.rows);
+        const allMusic = await Music.find();
+        res.json(allMusic);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -46,7 +56,7 @@ app.get('/api/music', async (req, res) => {
 app.delete('/api/music/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await pool.query('DELETE FROM music WHERE id = $1', [id]);
+        await Music.findByIdAndDelete(id);
         res.sendStatus(204);
     } catch (err) {
         console.error(err);
@@ -58,11 +68,8 @@ app.put('/api/music/:id', async (req, res) => {
     const { id } = req.params;
     const { title, artist, album, year } = req.body;
     try {
-        const result = await pool.query(
-            'UPDATE music SET title = $1, artist = $2, album = $3, year = $4 WHERE id = $5 RETURNING *',
-            [title, artist, album, year, id]
-        );
-        res.json(result.rows[0]);
+        const updatedMusic = await Music.findByIdAndUpdate(id, { title, artist, album, year }, { new: true });
+        res.json(updatedMusic);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -70,13 +77,6 @@ app.put('/api/music/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
-    try {
-        // Menguji koneksi ke database saat server mulai
-        await pool.connect();
-        console.log('Connected to database');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
