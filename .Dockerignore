@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+*.log
+
+*.txt
+*.docx
+*.xlsx
+
+.*
+
+logs/
+temp/
