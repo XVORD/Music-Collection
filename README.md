@@ -2,12 +2,6 @@
 
 Music Collection adalah platform untuk mengelola koleksi musik dengan mudah, menggunakan React.js di frontend dan Express.js di backend. Pengguna dapat menambah, mengedit, dan menghapus entri musik sesuai keinginan.
 
-Author  : Beres Bakti Parsaoran Siagian
-
-NPM     : 2206817585
-
-Link Demo Web : https://youtu.be/4O19rqM0uh8
-
 Tampilan awal :
 
 ![image](https://github.com/Ressiuuu/Music-Collection/assets/120215928/81028c6d-114c-42ec-9b04-45840ee771ab)
