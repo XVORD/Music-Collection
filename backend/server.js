@@ -8,10 +8,9 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const mongoURI = 'mongodb+srv://beressiagian:Samber321@sbdpraktikum.flyb2zc.mongodb.net/?retryWrites=true&w=majority&appName=SBDPraktikum';
+const mongoURI = 'mongodb://mongo:27017/colletion';
 mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useNewUrlParser: true
 });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -28,7 +27,7 @@ const musicSchema = new mongoose.Schema({
 });
 
 // Create a model based on the schema
-const Music = mongoose.model('Music', musicSchema);
+const Music = mongoose.model('musics', musicSchema);
 
 // CRUD Routes
 app.post('/api/music', async (req, res) => {
